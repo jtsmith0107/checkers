@@ -22,10 +22,11 @@ class Piece
   
   def draw
     x,y,z = @win.grid_to_pixel(*@pos)
-    @img.draw(x/1.5,y/1.5,z)
+    @img.draw(y/1.7,x/1.7,z)
   end
   
   def possible_moves
+    puts "Moves for #{@pos}"
     if @kinged
       puts "I'm kinged"
       slide_moves = KING_SLIDES
@@ -36,7 +37,7 @@ class Piece
       jump_moves = @color == :B ? BLACK_JUMPS : RED_JUMPS
     end
     
-    add_pos = Proc.new  {|move| [@pos[0] + move[0],@pos[1]+move[1]]}
+    add_pos = Proc.new  {|move| [@pos[1] + move[1],@pos[0]+move[0]]}
     slide_poses = slide_moves.map(&add_pos)    
     jump_poses = jump_moves.map(&add_pos)
     puts "slide_poses positions are #{slide_poses}"  
@@ -73,7 +74,7 @@ class Piece
       jump_moves = @color == :B ? BLACK_JUMPS : RED_JUMPS
     end
     
-    add_pos = Proc.new  {|move| [@pos[0] + move[0],@pos[1]+move[1]]}
+    add_pos = Proc.new  {|move| [@pos[1] + move[1],@pos[0]+move[0]]}
     slide_poses = slide_moves.map(&add_pos)    
     jump_poses = jump_moves.map(&add_pos)
     
@@ -92,12 +93,12 @@ class Piece
     end_pos[0],end_pos[1] = end_pos[1],end_pos[0]
     if possible_moves.include? end_pos
       @board.move_piece(self, end_pos)
-      capture_piece_pos = [(@pos[0]+end_pos[0])/2,(@pos[0]+ end_pos[1])/2]
+      capture_piece_pos = [(@pos[1]+end_pos[1])/2,(@pos[0]+ end_pos[0])/2]
       unless collision(capture_piece_pos) == @color 
         @board.remove_piece_at(capture_piece_pos) 
       end
       @pos = end_pos 
-      if @color == :B ? end_pos[0] == 0 : end_pos[1] == 7
+      if @color == :B ? end_pos[1] == 0 : end_pos[0] == 7
         @kinged = true
       end
       return true     

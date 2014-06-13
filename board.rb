@@ -11,7 +11,7 @@ class Board
   
   def draw
     pieces = get_all_pieces
-    @win.scale(1.5, 1.5) do
+    @win.scale(1.7, 1.7) do
       pieces.each do |piece|
         piece.draw
       end
@@ -32,10 +32,10 @@ class Board
     #if row even place on even cols
     #0 , 2, 4, 6
     #1,3,5,7
-    @grid.each_with_index do |row,row_idx|
-      row.each_with_index do |tile, col_idx|  
+    @grid.each_with_index do |row,col_idx|
+      row.each_with_index do |tile, row_idx|  
         curr_color = :B if (0..2).include? row_idx
-        curr_color = :R if (5..7).include? row_idx
+        curr_color = :W if (5..7).include? row_idx
         
         if !curr_color.nil? && row_idx.even? && col_idx.even?
           @grid[row_idx][col_idx] = Piece.new(@win, self,[row_idx,col_idx],curr_color) 
@@ -49,14 +49,14 @@ class Board
   
   def move_piece(piece, move_pos)
     pos = piece.pos
-    @grid[pos[0]][pos[1]] = nil
+    @grid[pos[1]][pos[0]] = nil
     @grid[move_pos[0]][move_pos[1]] = piece
   end
   
   def dup
     new_board = Board.new(Checkers.new)
-    @grid.each_with_index do |row, row_idx|
-      row.each_with_index do |tile, col_idx|
+    @grid.each_with_index do |row, col_idx|
+      row.each_with_index do |tile, row_idx|
         curr_piece = get_piece([row_idx,col_idx])
         if curr_piece.nil?          
           new_board.grid[col_idx][row_idx] = nil
@@ -70,7 +70,7 @@ class Board
   end
   
   def place_piece(new_piece)
-    x,y = new_piece.pos
+    y,x = new_piece.pos
     @grid[x][y] = new_piece
   end
   
@@ -112,11 +112,11 @@ class Board
   end
     
   def remove_piece_at(pos)
-    @grid[pos[0]][pos[1]] = nil
+    @grid[pos[1]][pos[0]] = nil
   end 
   
   #reversed to correspond with piece pos order
   def get_piece(pos)
-    @grid[pos[0]][pos[1]]
+    @grid[pos[1]][pos[0]]
   end  
 end

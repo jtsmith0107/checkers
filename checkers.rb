@@ -13,7 +13,10 @@ class Checkers < Window
   
   
   def update
-    
+    if button_down?(KbSpace)
+     p "#{get_mouse_grid.reverse} mouse grid location"
+     p "Piece location #{@board.get_piece(get_mouse_grid.reverse).pos}" unless @board.get_piece(get_mouse_grid.reverse).nil?
+   end
   end
   
   def draw
@@ -23,20 +26,22 @@ class Checkers < Window
   
   def button_down(id)
     if id == MsLeft
-      @start_pos = get_mouse_grid
+      @start_pos = get_mouse_grid.reverse
     end
   end
   
   def button_up(id)
     if MsLeft == id
-      @end_pos = get_mouse_grid
+      @end_pos = get_mouse_grid.reverse
       piece = @board.get_piece(@start_pos)
-      chain_move = @board.request_jump_path(piece, @end_pos) unless piece.nil?
-      p "chain move is #{chain_move}"
-      if !chain_move.nil? && chain_move != [] 
-        piece.perform_moves(chain_move)
-      elsif piece.possible_moves != []
-        piece.perform_move(@end_pos)
+      unless piece.nil? || @end_pos.nil? || @start_pos.nil?
+        chain_move = @board.request_jump_path(piece, @end_pos) unless piece.nil?
+        p "chain move is #{chain_move}"
+        if !chain_move.nil?
+          piece.perform_moves(chain_move)
+        elsif piece.possible_moves != []
+          piece.perform_move(@end_pos)
+        end
       end
     end
   end
@@ -46,13 +51,13 @@ class Checkers < Window
   end 
   
   def grid_to_pixel(x, y, z = 0.5)
-     [(x * 75 + 13).to_i, (y * 75 + 13).to_i,z]
+     [(y* 75 + 13).to_i, (x * 75 + 13).to_i,z]
    end
    
    def get_mouse_grid
      mouse = []
      mouse = mouse_x, mouse_y
-     [((mouse[0] - 13) / 75).to_i,((mouse[1] - 13) / 75).to_i]
+     [((mouse[1] - 13) / 75).to_i,((mouse[0] - 13) / 75).to_i]
    end   
 end
 
