@@ -5,7 +5,7 @@ class Board
   attr_accessor :grid
   
   def initialize(window) 
-    @grid = Array.new(8) { Array.new(8) { nil } }
+    @grid = Array.new(8) {Array.new(8, nil)}
     @win = window
   end
   
@@ -16,6 +16,16 @@ class Board
         piece.draw
       end
     end
+  end
+  
+  def [](pos)
+    x,y = pos
+    @grid[y][x]
+  end
+  
+  def []=(pos, piece)
+    x,y = pos
+    @grid[y][x] = piece
   end
   
   def get_all_pieces
@@ -38,9 +48,9 @@ class Board
         curr_color = :W if (5..7).include? row_idx
         
         if !curr_color.nil? && row_idx.even? && col_idx.even?
-          @grid[row_idx][col_idx] = Piece.new(@win, self,[row_idx,col_idx],curr_color) 
+          self[[row_idx,col_idx]] = Piece.new(@win, self,[row_idx,col_idx],curr_color) 
         elsif !curr_color.nil? && row_idx.odd? && col_idx.odd?
-          @grid[row_idx][col_idx] = Piece.new(@win, self,[row_idx,col_idx],curr_color)
+          self[[row_idx,col_idx]] = Piece.new(@win, self,[row_idx,col_idx],curr_color)
         end
       end
     end
@@ -49,8 +59,8 @@ class Board
   
   def move_piece(piece, move_pos)
     pos = piece.pos
-    @grid[pos[1]][pos[0]] = nil
-    @grid[move_pos[0]][move_pos[1]] = piece
+    self[pos] = nil
+    self[move_pos] = piece
   end
   
   def dup
@@ -59,19 +69,18 @@ class Board
       row.each_with_index do |tile, row_idx|
         curr_piece = get_piece([row_idx,col_idx])
         if curr_piece.nil?          
-          new_board.grid[col_idx][row_idx] = nil
+          new_board[[row_idx,col_idx]] = nil
         else
-          new_board.grid[col_idx][row_idx] =
+          new_board[[row_idx,col_idx]] =
             Piece.new(@win, new_board,[row_idx,col_idx],curr_piece.color,curr_piece.kinged)
-          end
+        end
       end
     end
     new_board
   end
   
   def place_piece(new_piece)
-    y,x = new_piece.pos
-    @grid[x][y] = new_piece
+    self[new_piece.pos] = new_piece
   end
   
   def display
@@ -90,7 +99,7 @@ class Board
   
   #attempts to create a move path from piece's position to end_pos
   #returns array of moves if successful, [] means no path available  
-  def request_jump_path(piece,end_pos)    
+  def request_jump_path(piece, end_pos)    
     moves = piece.possible_jump_moves
     puts "These are #{moves} possible moves"
     return [] if piece.pos == end_pos    
@@ -112,11 +121,15 @@ class Board
   end
     
   def remove_piece_at(pos)
-    @grid[pos[1]][pos[0]] = nil
+    self[pos] = nil
   end 
+  
+  def get_piece_from_mouse(pos)
+    self[pos]
+  end
   
   #reversed to correspond with piece pos order
   def get_piece(pos)
-    @grid[pos[1]][pos[0]]
+    self[pos]
   end  
 end

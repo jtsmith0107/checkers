@@ -1,3 +1,5 @@
+
+require 'debugger'
 require './board'
 require 'gosu'
 include Gosu
@@ -11,10 +13,10 @@ class Checkers < Window
     @background = Image.new(self, "./media/board.png", true)   
   end 
   
-  
+  #reverse mouse for anything that goes down to piece/grid
   def update
     if button_down?(KbSpace)
-     p "#{get_mouse_grid.reverse} mouse grid location"
+     p "#{get_mouse_grid} mouse grid location"
      p "Piece location #{@board.get_piece(get_mouse_grid.reverse).pos}" unless @board.get_piece(get_mouse_grid.reverse).nil?
    end
   end
@@ -32,15 +34,17 @@ class Checkers < Window
   
   def button_up(id)
     if MsLeft == id
-      @end_pos = get_mouse_grid.reverse
-      piece = @board.get_piece(@start_pos)
-      unless piece.nil? || @end_pos.nil? || @start_pos.nil?
-        chain_move = @board.request_jump_path(piece, @end_pos) unless piece.nil?
+      @end_pos = get_mouse_grid
+      piece = @board.get_piece_from_mouse(@start_pos)
+      unless piece.nil? || @end_pos.nil?
+        chain_move = @board.request_jump_path(piece, @end_pos.reverse)
         p "chain move is #{chain_move}"
         if !chain_move.nil?
+          chain_move.shift
           piece.perform_moves(chain_move)
         elsif piece.possible_moves != []
-          piece.perform_move(@end_pos)
+          puts "performing move #{@end_pos.reverse}"
+          piece.perform_move(@end_pos.reverse)
         end
       end
     end
@@ -108,13 +112,18 @@ b.grid.each_with_index do |row, i|
 end
 
 b.display
+
 puts "\n"
 red_jumper = b.get_piece([7,7])
 puts "Beginning perform moves!!!!!!!!!!!!!!"    
 puts "value of jump_path #{b.request_jump_path(red_jumper,[3,7])}"
+debugger
 path = b.request_jump_path(red_jumper,[3,7])
+
 if path.shift == [3,7]
+  
   red_jumper.perform_moves(path)
+  
 end
 b.display
   

@@ -37,7 +37,7 @@ class Piece
       jump_moves = @color == :B ? BLACK_JUMPS : RED_JUMPS
     end
     
-    add_pos = Proc.new  {|move| [@pos[1] + move[1],@pos[0]+move[0]]}
+    add_pos = Proc.new  {|move| [@pos[0] + move[0],@pos[1]+move[1]]}
     slide_poses = slide_moves.map(&add_pos)    
     jump_poses = jump_moves.map(&add_pos)
     puts "slide_poses positions are #{slide_poses}"  
@@ -90,10 +90,9 @@ class Piece
   end
   
   def perform_move(end_pos)
-    end_pos[0],end_pos[1] = end_pos[1],end_pos[0]
     if possible_moves.include? end_pos
       @board.move_piece(self, end_pos)
-      capture_piece_pos = [(@pos[1]+end_pos[1])/2,(@pos[0]+ end_pos[0])/2]
+      capture_piece_pos = [(@pos[0]+end_pos[0])/2,(@pos[1]+ end_pos[1])/2]
       unless collision(capture_piece_pos) == @color 
         @board.remove_piece_at(capture_piece_pos) 
       end
@@ -110,7 +109,6 @@ class Piece
   def perform_moves(move_sequence)
     if valid_move_seq?(move_sequence)
       perform_moves!(move_sequence)
-      true
     else
       raise InvalidMoveError, "Invalid move in the sequence"
     end
@@ -137,9 +135,6 @@ class Piece
     end
   end
   
-  #must know its own new position
- 
-  
   def valid_jump_move(jump_move)
     in_bounds(jump_move) && !collision(jump_move)
   end
@@ -151,7 +146,7 @@ class Piece
   end
   
   def in_bounds(pos)
-    (0..7).include?(pos[0]) && (0..7).include?(pos[1])
+    pos.all? {|pos|(0..7).include?(pos)}
   end
 end
 
